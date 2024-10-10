@@ -3,231 +3,94 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bank Balance Tracker</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #f4f4f4;
-        }
-
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-
-        h1 {
-            text-align: center;
-        }
-
-        label {
-            display: block;
-            margin: 15px 0 5px;
-            font-weight: bold;
-        }
-
-        input {
-            width: 100%;
-            padding: 8px;
-            margin-bottom: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-
-        .btn {
-            background-color: #28a745;
-            color: white;
-            padding: 10px 15px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            width: 100%;
-            margin-bottom: 10px;
-        }
-
-        .btn:hover {
-            background-color: #218838;
-        }
-
-        .output {
-            margin-top: 20px;
-            font-size: 18px;
-            font-weight: bold;
-        }
-
-        .error {
-            color: #dc3545;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-
-        th, td {
-            border: 1px solid #ccc;
-            padding: 10px;
-            text-align: center;
-        }
-
-        th {
-            background-color: #f2f2f2;
-        }
-
-        .delete-btn {
-            background-color: #dc3545;
-        }
-
-        .delete-btn:hover {
-            background-color: #c82333;
-        }
-    </style>
+    <title>Firebase Integration</title>
 </head>
 <body>
-    <div class="container">
-        <h1>Bank Balance Tracker</h1>
+    <h1>Firebase Connection</h1>
 
-        <label for="balanceDate">Date:</label>
-        <input type="date" id="balanceDate" required>
+    <!-- Firebase SDK -->
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.x.x/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.x.x/firebase-analytics.js";
+        import { getFirestore, collection, addDoc, getDocs, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/9.x.x/firebase-firestore.js";
 
-        <label for="cash">Cash:</label>
-        <input type="number" id="cash" value="0" required>
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCMUWx1eX0oefB7GU0RPjJ_QBV-7njU3kw",
+            authDomain: "bkash-79250.firebaseapp.com",
+            projectId: "bkash-79250",
+            storageBucket: "bkash-79250.appspot.com",
+            messagingSenderId: "193172720529",
+            appId: "1:193172720529:web:facd1024e097db1ecf6830",
+            measurementId: "G-LZ3ZFV8G14"
+        };
 
-        <label for="brac">Brac Bank:</label>
-        <input type="number" id="brac" value="0" required>
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
 
-        <label for="naim">Naim:</label>
-        <input type="number" id="naim" value="0" required>
+        // Initialize Firestore
+        const db = getFirestore(app);
 
-        <label for="bkashAgent">Bkash Agent:</label>
-        <input type="number" id="bkashAgent" value="0" required>
-
-        <label for="bkashPersonal">Bkash Personal:</label>
-        <input type="number" id="bkashPersonal" value="0" required>
-
-        <label for="nogodAgent">Nogod Agent:</label>
-        <input type="number" id="nogodAgent" value="0" required>
-
-        <label for="nogodPersonal">Nogod Personal:</label>
-        <input type="number" id="nogodPersonal" value="0" required>
-
-        <label for="ador">Ador:</label>
-        <input type="number" id="ador" value="0" required>
-
-        <label for="arzo">Arzo:</label>
-        <input type="number" id="arzo" value="0" required>
-
-        <label for="other">Other:</label>
-        <input type="number" id="other" value="0" required>
-
-        <button class="btn" onclick="calculateTotalBalance()">Add Balance</button>
-
-        <div class="output" id="output"></div>
-        
-        <table>
-            <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>Previous Balance (BDT)</th>
-                    <th>Today's Total (BDT)</th>
-                    <th>Profit/Loss (BDT)</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody id="balanceTableBody"></tbody>
-        </table>
-    </div>
-
-    <script>
-        let currentBalance = 0; // To store today's calculated balance
-        const balanceEntries = []; // Array to store balance entries
-
-        function calculateTotalBalance() {
-            // Get the date value
-            let date = document.getElementById('balanceDate').value;
-
-            // Get individual bank balances
-            let cash = parseFloat(document.getElementById('cash').value) || 0;
-            let brac = parseFloat(document.getElementById('brac').value) || 0;
-            let naim = parseFloat(document.getElementById('naim').value) || 0;
-            let bkashAgent = parseFloat(document.getElementById('bkashAgent').value) || 0;
-            let bkashPersonal = parseFloat(document.getElementById('bkashPersonal').value) || 0;
-            let nogodAgent = parseFloat(document.getElementById('nogodAgent').value) || 0;
-            let nogodPersonal = parseFloat(document.getElementById('nogodPersonal').value) || 0;
-            let ador = parseFloat(document.getElementById('ador').value) || 0;
-            let arzo = parseFloat(document.getElementById('arzo').value) || 0;
-            let other = parseFloat(document.getElementById('other').value) || 0;
-
-            // Calculate total current balance
-            const newBalance = cash + brac + naim + bkashAgent + bkashPersonal + nogodAgent + nogodPersonal + ador + arzo + other;
-
-            // Determine previous balance from the last entry, if any
-            const previousBalance = balanceEntries.length > 0 ? balanceEntries[balanceEntries.length - 1].currentBalance : 22700;
-
-            // Calculate profit/loss
-            const profitOrLoss = newBalance - previousBalance;
-
-            // Create a new entry object
-            const entry = {
-                date: date,
-                previousBalance: previousBalance,
-                currentBalance: newBalance,
-                profitOrLoss: profitOrLoss,
-            };
-
-            // Add entry to the array
-            balanceEntries.push(entry);
-            displayBalances();
-            clearInputs();
-        }
-
-        function displayBalances() {
-            // Get the table body
-            const tableBody = document.getElementById('balanceTableBody');
-            tableBody.innerHTML = '';
-
-            // Populate the table with entries
-            balanceEntries.forEach((entry, index) => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${entry.date}</td>
-                    <td>${entry.previousBalance.toFixed(2)} BDT</td>
-                    <td>${entry.currentBalance.toFixed(2)} BDT</td>
-                    <td>${entry.profitOrLoss.toFixed(2)} BDT</td>
-                    <td><button class="btn delete-btn" onclick="deleteEntry(${index})">Delete</button></td>
-                `;
-                tableBody.appendChild(row);
-            });
-        }
-
-        function deleteEntry(index) {
-            // Confirm deletion
-            if (confirm("Are you sure you want to delete this entry?")) {
-                balanceEntries.splice(index, 1); // Remove entry from the array
-                displayBalances(); // Refresh the display
+        // Example function to add data
+        async function saveData() {
+            try {
+                const docRef = await addDoc(collection(db, "balances"), {
+                    cash: document.getElementById('cash').value,
+                    bracBank: document.getElementById('bracBank').value,
+                    naim: document.getElementById('naim').value,
+                    bkashAgent: document.getElementById('bkashAgent').value,
+                    bkashPersonal: document.getElementById('bkashPersonal').value,
+                    nogodAgent: document.getElementById('nogodAgent').value,
+                    nogodPersonal: document.getElementById('nogodPersonal').value,
+                    ador: document.getElementById('ador').value,
+                    arzo: document.getElementById('arzo').value,
+                    other: document.getElementById('other').value,
+                    date: new Date().toLocaleDateString()
+                });
+                console.log("Document written with ID: ", docRef.id);
+            } catch (e) {
+                console.error("Error adding document: ", e);
             }
         }
 
-        function clearInputs() {
-            // Clear all input fields after adding an entry
-            document.getElementById('cash').value = 0;
-            document.getElementById('brac').value = 0;
-            document.getElementById('naim').value = 0;
-            document.getElementById('bkashAgent').value = 0;
-            document.getElementById('bkashPersonal').value = 0;
-            document.getElementById('nogodAgent').value = 0;
-            document.getElementById('nogodPersonal').value = 0;
-            document.getElementById('ador').value = 0;
-            document.getElementById('arzo').value = 0;
-            document.getElementById('other').value = 0;
-            document.getElementById('balanceDate').value = ''; // Clear the date
+        // Example function to retrieve data
+        async function loadData() {
+            const q = query(collection(db, "balances"), orderBy("date", "desc"), limit(1));
+            const querySnapshot = await getDocs(q);
+            querySnapshot.forEach((doc) => {
+                const data = doc.data();
+                document.getElementById('cash').value = data.cash;
+                document.getElementById('bracBank').value = data.bracBank;
+                document.getElementById('naim').value = data.naim;
+                document.getElementById('bkashAgent').value = data.bkashAgent;
+                document.getElementById('bkashPersonal').value = data.bkashPersonal;
+                document.getElementById('nogodAgent').value = data.nogodAgent;
+                document.getElementById('nogodPersonal').value = data.nogodPersonal;
+                document.getElementById('ador').value = data.ador;
+                document.getElementById('arzo').value = data.arzo;
+                document.getElementById('other').value = data.other;
+            });
         }
+
+        // Load data when the page loads
+        window.onload = loadData;
     </script>
+
+    <!-- Form to input and display data -->
+    <form>
+        <input id="cash" type="text" placeholder="Cash" />
+        <input id="bracBank" type="text" placeholder="Brac Bank" />
+        <input id="naim" type="text" placeholder="Naim" />
+        <input id="bkashAgent" type="text" placeholder="Bkash Agent" />
+        <input id="bkashPersonal" type="text" placeholder="Bkash Personal" />
+        <input id="nogodAgent" type="text" placeholder="Nogod Agent" />
+        <input id="nogodPersonal" type="text" placeholder="Nogod Personal" />
+        <input id="ador" type="text" placeholder="Ador" />
+        <input id="arzo" type="text" placeholder="Arzo" />
+        <input id="other" type="text" placeholder="Other" />
+        <button type="button" onclick="saveData()">Save</button>
+    </form>
 </body>
 </html>
